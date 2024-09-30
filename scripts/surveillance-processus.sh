@@ -12,11 +12,15 @@ fi
 # Fonction pour surveiller les processus et enregistrer les informations
 monitor_processes() {
   echo "Date: $(date)" >> $LOG_FILE
-  echo "PID | USER | %CPU | %MEM | COMMAND" >> $LOG_FILE
-  
-  # Lister les processus avec ps
-  ps -eo pid,user,%cpu,%mem,comm --sort=-%cpu | head -n 10 >> $LOG_FILE
-  
+
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Commande pour macOS avec formatage
+    ps aux | awk '{printf "%-10s %-10s %-8s %-8s %s\n", $1, $2, $3, $4, $11}' | column -t | head -n 10 >> $LOG_FILE
+  else
+    # Commande pour Linux avec formatage
+    ps -eo pid,user,%cpu,%mem,comm --sort=-%cpu | awk '{printf "%-10s %-10s %-8s %-8s %s\n", $1, $2, $3, $4, $5}' | column -t | head -n 10 >> $LOG_FILE
+  fi
+
   echo "----------------------------------------" >> $LOG_FILE
 }
 
